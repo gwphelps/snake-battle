@@ -10,6 +10,13 @@ namespace BattleSnake.Models
         public int X { get; set; }
         public int Y { get; set; }
 
-
+        public bool Compare(SnakeModel other)
+        {
+            if (this.X == other.X && this.Y == other.Y)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

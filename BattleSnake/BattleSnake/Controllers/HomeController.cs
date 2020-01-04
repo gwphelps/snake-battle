@@ -151,6 +151,8 @@ namespace BattleSnake.Controllers
             lobbies[index].MemWalls = new List<SnakeModel>();
             lobbies[index].MemSize = 0;
             lobbies[index].HostSize = 0;
+            lobbies[index].lost = "no";
+
 
             lobbies[index].Board = new string[25,25];
             lobbies[index].Board[lobbies[index].Fruit.X, lobbies[index].Fruit.Y] = "fruit";
@@ -171,6 +173,11 @@ namespace BattleSnake.Controllers
             LobbyModel lobby = lobbies[getIndex(model.Username)];
             SnakeModel hostPieceAdded = null;
             SnakeModel memPieceAdded = null;
+
+            if(lobby.lost != "no")
+            {
+                return Json(lobby, JsonRequestBehavior.AllowGet);
+            }
             int x;
             int y;
             bool isHost = false;
@@ -278,10 +285,76 @@ namespace BattleSnake.Controllers
                 lobby.HostBody.Add(hostPieceAdded);
                 lobby.Fruit = newFruitLocation(lobby);
             }
+
+            if (checkWin(lobby, isHost))
+            {
+                if (isHost)
+                {
+                    lobby.lost = lobby.Member;
+                }
+                else
+                {
+                    lobby.lost = lobby.Host;
+                }
+            }
+
             lobbies[getIndex(model.Username)] = lobby;
             return Json(lobby, JsonRequestBehavior.AllowGet);
         }
 
+        private static bool checkWin(LobbyModel lobby, bool isHost)
+        {
+            bool hasLost = false;
+            SnakeModel head;
+
+            if (isHost)
+            {
+                head = lobby.HostSnake;
+                if (head.Compare(lobby.MemberSnake))
+                {
+                    hasLost = true;
+                }
+                foreach(var point in lobby.MemBody)
+                {
+                    if (head.Compare(point))
+                    {
+                        hasLost = true;
+                    }
+                }
+                foreach(var point in lobby.MemWalls)
+                {
+                    if (head.Compare(point))
+                    {
+                        hasLost = true;
+                    }
+                }
+            }
+            else
+            {
+                head = lobby.MemberSnake;
+                if (head.Compare(lobby.HostSnake))
+                {
+                    hasLost = true;
+                }
+                foreach (var point in lobby.HostBody)
+                {
+                    if (head.Compare(point))
+                    {
+                        hasLost = true;
+                    }
+                }
+                foreach (var point in lobby.HostWalls)
+                {
+                    if (head.Compare(point))
+                    {
+                        hasLost = true;
+                    }
+                }
+            }
+
+            
+            return hasLost;
+        }
         private static SnakeModel newFruitLocation(LobbyModel lobby)
         {
             Random rand = new Random();

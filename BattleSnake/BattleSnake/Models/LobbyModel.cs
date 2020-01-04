@@ -27,5 +27,7 @@ namespace BattleSnake.Models
         public string[,] Board { get; set; }
         public List<SnakeModel> HostWalls { get; internal set; }
         public List<SnakeModel> MemWalls { get; internal set; }
+
+        public string lost { get; set; }
     }
 }

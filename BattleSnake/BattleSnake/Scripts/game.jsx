@@ -15,7 +15,8 @@ class Canvas extends React.Component {
             memWalls: {},
             hostWalls: {},
             direction: "d",
-            drop: false
+            drop: false,
+            lost: "no"
         };
         this.sendBoard = this.sendBoard.bind(this);
         
@@ -52,7 +53,7 @@ class Canvas extends React.Component {
 
         
         ctx.fillStyle = "black";
-        ctx.fillRect(20 * memX + 2, 20 * memY + 8, 4, 4);
+        ctx.fillRect(20 * memX + 2, 20 * memY + 8, 8, 4);
         ctx.fillRect(20 * memX + 14, 20 * memY + 8, 4, 4);
 
         const hostX = this.state.hostSnake.x;
@@ -78,6 +79,16 @@ class Canvas extends React.Component {
 
         ctx.fillText(this.state.hostName + " : " + this.state.hostSize, 150, 450);
         ctx.fillText(this.state.memName + " : " + this.state.memSize, 350, 450);
+
+        if (this.state.lost != "no") {
+            ctx.fillStyle = "black";
+            ctx.fillRect(20 * 8, 20 * 8, 12*13, 12*13);
+            ctx.fillStyle = "white";
+            ctx.font = "32px Arial";
+            ctx.fillText(this.state.lost, 20 * 10, 20 * 11);
+            ctx.fillText("Won!", 20 * 10, 22 * 12);
+            
+        }
     }
 
     getBoard() {
@@ -99,7 +110,8 @@ class Canvas extends React.Component {
                 hostBody: data.HostBody,
                 memWalls: data.MemWalls,
                 hostWalls: data.HostWalls,
-                drop: false
+                drop: false,
+                lost: data.lost
             });
          
             //console.log(this.state);
@@ -130,7 +142,10 @@ class Canvas extends React.Component {
 
         window.setInterval(
             () => {
-                this.sendBoard(); 
+                if (this.state.lost == "no") {
+                    this.sendBoard();
+                }
+                
             },
             this.props.pollInterval,
         );
